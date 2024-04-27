@@ -29,19 +29,16 @@ export const useSocket = (serverPath) => {
 
   useEffect(() => {
     socket.on("jugador-unido", (players) => {
-      if (players.length === 2) {
-        setGameMode("multiplayer");
-       
-      }
       players[0] === socket.id ? setIsX(true) : setIsX(false);
-      console.log(isX)
+
     });
-  }, [socket,isX]);
+    setGameMode("multiplayer");
+  }, [socket, isX]);
 
   return {
     socket,
     online,
     gameMode,
-    isX
+    isX,
   };
 };
