@@ -6,18 +6,19 @@ const NotificationBubble = ({ message, success, error }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
-    }, 1500); // La notificación desaparecerá después de 3 segundos
+    }, 2000); 
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div
-      className={`fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-md transition-opacity ${
+      className={`fixed top-4 right-4 bg-gray-800 z-50 text-white px-4 py-2 rounded-md transition-opacity ${
         visible
           ? "opacity-100 duration-300"
           : "opacity-0 duration-300 pointer-events-none"
       }`}
+      style={{ backgroundColor: success ? "#2F855A" : error ? "#E53E3E" : "#4A5568" }}
     >
       {success && (
         <>
