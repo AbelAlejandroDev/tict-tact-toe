@@ -3,10 +3,11 @@ import { Circlemark } from "../icons/Circlemark";
 import { Xmark } from "../icons/Xmark";
 import { SocketContext } from "../context/SocketContext";
 
-export const Status = ({ xIsNext, found, winner, answer }) => {
-  const { isX, socket, token } = useContext(SocketContext);
+export const Status = ({xIsNext,found,winner,answer,newGame: newCode,}) => {
+  const { isX, socket, token, gameMode } = useContext(SocketContext);
   const [confirm, setConfirm] = useState(false);
   const [showReturnMatchAlert, setShowReturnMatchAlert] = useState(false);
+  const [newGame, setNewGame] = useState(false);
   const playerId = socket.id;
 
   // hacemos la peticion  para la revancha
@@ -15,7 +16,6 @@ export const Status = ({ xIsNext, found, winner, answer }) => {
     setConfirm(true);
   };
 
-  // TODO: volver al estado inicial el juego y notificar
   const handleReturnMatch = () => {
     socket.emit("respuesta-revancha", { playerId, token, accepted: true });
     setShowReturnMatchAlert(false);
@@ -31,12 +31,32 @@ export const Status = ({ xIsNext, found, winner, answer }) => {
       setShowReturnMatchAlert(true);
     });
   }, [socket, playerId]);
-  console.log(winner)
-  console.log(answer)
+
+  useEffect(() => {
+    socket.on("reinicio", () => {
+      setConfirm(!confirm);
+    });
+  });
+  useEffect(() => {
+    socket.on("abandono-partida", () => {
+      setNewGame(true);
+      setConfirm(true);
+    });
+  });
+  console.log(gameMode);
+
   return (
     <div className="flex flex-col justify-center items-center mt-4">
       <h4 className="text-lg font-bold p-2 rounded-lg shadow-md mb-2">
-        {isX === null && !winner && <>Elija un modo de juego</>}
+        {newGame && (
+          <button
+            onClick={newCode}
+            className="flex mx-2 bg-blue-500 items-center hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Elija un modo de juego | Invita otra persona
+          </button>
+        )}
+        {isX === null && !winner && <>Elija un modo de juego </>}
         {isX === true && !winner && (
           <>
             <span className="text-blue-950  px-2 py-1 rounded-full mb-4">
@@ -71,27 +91,35 @@ export const Status = ({ xIsNext, found, winner, answer }) => {
             <Circlemark className="w-6 h-6 inline-block ml-2" />
           </>
         )}
-        {winner !==null && answer === null && (
-            <>
-              <div className="flex justify-center mr-5 mb-4 text-blue-500">
-                <h5 className="text-3xl ">Gano <span className="text-4xl text-amber-500">{winner}</span></h5>
-              </div>
-              <div className="flex">
-                <button
-                  onClick={onReturnMatch}
-                  className="flex mx-2 bg-green-700 items-center hover:bg-green-500 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 disabled:hover:bg-gray-400"
-                  disabled={confirm || !winner}
-                >
-                  Revancha
-                </button>
-                <button className="flex mx-2 bg-red-700 items-center hover:bg-red-500 text-white font-bold py-2 px-4 rounded">
-                  Abandonar Sala
-                </button>
-              </div>
-            </>
-          )}
+        {winner !== null && answer === null && (
+          <>
+            <div className="flex justify-center mr-5 mb-4 text-blue-500">
+              <h5 className="text-3xl ">
+                Gano <span className="text-4xl text-amber-500">{winner}</span>
+              </h5>
+            </div>
+            <div className="flex">
+              <button
+                onClick={onReturnMatch}
+                className="flex mx-2 bg-green-700 items-center hover:bg-green-500 text-white font-bold py-2 px-4 rounded disabled:bg-gray-400 disabled:hover:bg-gray-400"
+                disabled={confirm || !winner}
+              >
+                Revancha
+              </button>
+              <button
+                onClick={handleRejectMatch}
+                className="flex mx-2 bg-red-700 items-center
+                disabled:bg-gray-400 disabled:hover:bg-gray-400
+                hover:bg-red-500 text-white font-bold py-2 px-4 rounded"
+                disabled={newGame}
+              >
+                Abandonar Sala
+              </button>
+            </div>
+          </>
+        )}
 
-        {found && (
+        {found && !winner && (
           <>
             <div className="flex justify-center mr-5 mb-4 text-blue-500">
               <h5 className="text-3xl ">Empate</h5>
@@ -104,7 +132,11 @@ export const Status = ({ xIsNext, found, winner, answer }) => {
               >
                 Revancha
               </button>
-              <button className="flex mx-2 bg-red-700 items-center hover:bg-red-500 text-white font-bold py-2 px-4 rounded">
+              <button
+                onClick={handleRejectMatch}
+                disabled={newGame}
+                className="flex mx-2 bg-red-700 items-center hover:bg-red-500 disabled:bg-gray-400 disabled:hover:bg-gray-400  text-white font-bold py-2 px-4 rounded"
+              >
                 Abandonar Sala
               </button>
             </div>
