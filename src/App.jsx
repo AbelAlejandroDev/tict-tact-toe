@@ -1,37 +1,90 @@
+import { useContext, useEffect, useState } from "react";
 import { Board } from "./components/Board";
 import { History } from "./components/History";
+import { SocketContext } from "./context/SocketContext";
 import { useGame } from "./hooks/useGame";
+import { Modal } from "./components/Modal";
+import NotificationBubble from "./components/NotificationBubble";
+import { Navbar } from "./components/Navbar";
 
 export default function Game() {
   const { history, handlePlay, jumpTo, currentSquares, xIsNext, restart } =
     useGame();
 
-  const moves = history.map((squares, move) => {
-    let description;
-    if (move > 0) {
-      description = "Go to move #" + move;
-    } else {
-      description = "Go to game start";
-    }
-    return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
-      </li>
-    );
-  });
+  const [connected, setConnected] = useState(false);
+  const { socket, gameMode, token } = useContext(SocketContext);
+  const [dialog, setDialog] = useState(false);
+  const [modal, setModal] = useState(false);
+
+  // TODO: implementar IA 1jugador
+  // const moves = history.map((squares, move) => {
+  //   let description;
+  //   if (move > 0) {
+  //     description = "Go to move #" + move;
+  //   } else {
+  //     description = "Go to game start";
+  //   }
+  //   return (
+  //     <li className="hover:text-red-600" key={move}>
+  //       <button onClick={() => jumpTo(move)}>{description}</button>
+  //     </li>
+  //   );
+  // });
+
+  const handleMultiplayer = async () => {
+    socket.emit("crear-partida", socket.id);
+    setModal(!modal);
+  };
+  const handleParty = () => {
+    setDialog(!dialog);
+  };
+
+  useEffect(() => {
+    socket.on("jugador-unido", () => {
+      setConnected(true);
+      setTimeout(() => {
+        setConnected(false);
+      }, 2000);
+    });
+  }, [socket]);
 
   return (
-    <div className="game">
-      <div className="game-board">
-        <Board
-          xIsNext={xIsNext}
-          squares={currentSquares}
-          restart={restart}
-          onPlay={handlePlay}
+    <>
+      {connected && <NotificationBubble success={true} message={"Conectado"} />}
+      <Modal
+        code={token}
+        modal={modal}
+        closeModal={() => setModal(false)}
+        create={true}
+      />
+      <Modal modal={dialog} closeModal={() => setDialog(false)} join={true} />
+      <div className={`${modal || dialog ? "blur-sm" : ""}`}>
+        <Navbar
+          handleMultiplayer={handleMultiplayer}
+          handleParty={handleParty}
         />
+        <div className="grid grid-cols-12 gap-4">
+          <div
+            className={`h-screen flex flex-col items-center justify-center col-span-12 "
+            }`}
+          >
+            <Board
+              token={token}
+              xIsNext={xIsNext}
+              squares={currentSquares}
+              restart={restart}
+              onPlay={handlePlay}
+              jumpTo={jumpTo}
+              newGame={handleMultiplayer}
+            />
+          </div>
+          {/* {gameMode !== "multiplayer" && (
+            <div className="col-span-3 bg-blue-400 rounded text-white flex flex-col overflow-y-auto">
+              {<History moves={moves} />}
+            </div>
+          )} */}
+        </div>
       </div>
-
-      {<History moves={moves} />}
-    </div>
+    </>
   );
 }
