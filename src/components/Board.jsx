@@ -3,8 +3,9 @@ import { Square } from "./Square";
 import { Status } from "./Status";
 import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../context/SocketContext";
+import NotificationBubble from "./NotificationBubble";
 
-export const Board = ({ xIsNext, squares, onPlay }) => {
+export const Board = ({ xIsNext, squares, onPlay, jumpTo, newGame }) => {
   const { socket, token } = useContext(SocketContext);
   const winner = useCalculateWinner(squares);
   const [currentPlayer, setCurrentPlayer] = useState(null);
@@ -31,15 +32,22 @@ export const Board = ({ xIsNext, squares, onPlay }) => {
   useEffect(() => {
     socket.on("respuesta-revancha", (accepted) => {
       setAnswer(accepted);
+      setTimeout(() => {
+        setAnswer(null);
+      }, 2000);
     });
   }, [socket]);
 
+  useEffect(() => {
+    socket.on("reinicio", () => {
+      jumpTo(0);
+    });
+  });
+
   function handleClick(i) {
     if (currentPlayer !== socket.id || winner || squares[i]) {
-      return console.log(currentPlayer);
+      return;
     }
-
-    console.log(currentPlayer);
     const nextSquares = squares.slice();
     if (xIsNext) {
       nextSquares[i] = "X";
@@ -54,11 +62,26 @@ export const Board = ({ xIsNext, squares, onPlay }) => {
   }
 
   let found = squares.every((element) => element !== null);
-
+  console.log(winner);
   return (
     <>
-      {answer === false && <h1>NO quiero pesao</h1>}
-      <Status xIsNext={xIsNext} token={token} found={found} winner={winner} />
+      {answer === true && (
+        <NotificationBubble
+          success={true}
+          message={"Aceptaron tu solicitud - reinciando el juego"}
+        />
+      )}
+      {answer === false && (
+        <NotificationBubble rejet={true} message={"Rechazaron tu solicitud"} />
+      )}
+      <Status
+        xIsNext={xIsNext}
+        token={token}
+        found={found}
+        winner={winner}
+        answer={answer}
+        newGame={newGame}
+      />
       <div className="grid grid-cols-3 gap-0 w-48 h-48 mb-4">
         {squares.map((value, index) => (
           <Square
