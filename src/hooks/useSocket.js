@@ -31,8 +31,8 @@ export const useSocket = (serverPath) => {
   useEffect(() => {
     socket.on("jugador-unido", ({ players }) => {
       players[0] === socket.id ? setIsX(true) : setIsX(false);
+      setGameMode("multiplayer");
     });
-    setGameMode("multiplayer");
   }, [socket, isX]);
   useEffect(() => {
     socket.on("token-generado", (token) => {
@@ -47,6 +47,22 @@ export const useSocket = (serverPath) => {
       setToken(codeRoom);
     });
   }, [socket, token]);
+
+  useEffect(() => {
+    socket.on("reinicio", ({ players }) => {
+      players[0] === socket.id ? setIsX(false) : setIsX(true);
+      setGameMode("multiplayer");
+    });
+  }, [socket, isX]);
+
+  useEffect(() => {
+    socket.on("abandono-partida", () => {
+      setGameMode("");
+      setIsX(null);
+      setToken(null);
+      sessionStorage.removeItem("token");
+    });
+  });
 
   return {
     socket,
