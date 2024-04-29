@@ -1,7 +1,20 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const Navbar = ({ handleMultiplayer, handleParty }) => {
   const [showMultiplayerOptions, setShowMultiplayerOptions] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setShowMultiplayerOptions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [ref]);
 
   return (
     <>
@@ -18,7 +31,10 @@ export const Navbar = ({ handleMultiplayer, handleParty }) => {
           Multijugador
         </button>
         {showMultiplayerOptions && (
-          <div className="absolute top-12 left-0  bg-white shadow-md rounded w-44">
+          <div
+            ref={ref}
+            className="absolute top-12 left-0  bg-white shadow-md rounded w-44"
+          >
             <button
               className="block h-10 text-md w-full text-left py-2 px-4 text-sm text-gray-800 hover:bg-gray-200"
               onClick={handleMultiplayer}
