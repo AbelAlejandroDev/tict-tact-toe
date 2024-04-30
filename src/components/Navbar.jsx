@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 
-export const Navbar = ({ handleMultiplayer, handleParty,handleSinglePlayer }) => {
+export const Navbar = ({
+  handleMultiplayer,
+  handleParty,
+  handleSinglePlayer,
+  statusServer,
+}) => {
   const [showMultiplayerOptions, setShowMultiplayerOptions] = useState(false);
   const ref = useRef(null);
 
@@ -56,6 +61,27 @@ export const Navbar = ({ handleMultiplayer, handleParty,handleSinglePlayer }) =>
           <img src="game_controller.svg" className="w-8  h-8 mr-2" alt="" />
           Un Jugador
         </button>
+        {statusServer ? (
+          <>
+            <div className="flex-grow"></div>
+            <span className="mr-2 text-white antialiased">Server Online</span>
+            <img
+              src="server_online.svg"
+              className="w-8 p-[1px] h-8 mr-4"
+              alt="server online"
+            />
+          </>
+        ) : (
+          <>
+            <div className="flex-grow"></div>
+            <span className="mr-2 text-white antialiased">Server Offline</span>
+            <img
+              src="server_offline.svg"
+              className="w-8 p-[1px] h-8 mr-4"
+              alt="server offline"
+            />
+          </>
+        )}
       </nav>
     </>
   );
