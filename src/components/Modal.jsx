@@ -11,7 +11,7 @@ export const Modal = ({ modal, closeModal, create, join }) => {
   const onSubmit = (e) => {
     e.preventDefault();
     socket.emit("unirse-partida", { codeRoom, id });
-    sessionStorage.setItem("token",token)
+    sessionStorage.setItem("token", token);
     socket.on("jugador-unido", (players) => {
       if (players.length === 2) {
         setTimeout(() => {
@@ -57,7 +57,11 @@ export const Modal = ({ modal, closeModal, create, join }) => {
           onClick={closeModal}
           className="fixed inset-0 bg-gray-800 opacity-75"
         ></div>
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 max-w-md h-44 w-full">
+        <div
+          className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 max-w-md ${
+            create ? "h-80" : "h-44"
+          } w-full`}
+        >
           <button
             onClick={closeModal}
             className="absolute top-0 right-0 m-2 bg-red-200 rounded-full px-4 py-2 text-red-500 hover:opacity-85"
@@ -66,7 +70,15 @@ export const Modal = ({ modal, closeModal, create, join }) => {
           </button>
           {create && (
             <div className="mb-4 overflow-x-auto">
-              <h1 className="text-xl text-center font-bold mb-2">Codigo</h1>
+              <h3 className="text-xl text-center font-bold mb-2">
+                Invita a un amigo -{" "}
+                <span
+                  className="hover:opacity-75 hover:text-blue-800 cursor-pointer"
+                  onClick={copyPartyCode}
+                >
+                  Codigo
+                </span>
+              </h3>
               <div
                 onClick={copyPartyCode}
                 className="cursor-pointer flex items-center"
@@ -78,7 +90,7 @@ export const Modal = ({ modal, closeModal, create, join }) => {
                       className="h-16 w-16 mr-4 "
                       alt="copiado"
                     />
-                    ¡Copiado!
+                    <small className="text-2xl">¡Copiado!</small>
                   </>
                 ) : (
                   <>
@@ -88,10 +100,30 @@ export const Modal = ({ modal, closeModal, create, join }) => {
                       className="h-16 w-16  mr-4"
                     />
                     <div className="overflow-x-auto max-h-40">
-                      <p>{token ? token :"El servidor esta en mantenimiento lo sentimos"}</p>
+                      <p>
+                        {token
+                          ? token
+                          : "El servidor esta en mantenimiento lo sentimos"}
+                      </p>
                     </div>
                   </>
                 )}
+              </div>
+              <hr className="border border-solid  mt-4" />
+              <h3 className="text-xl text-center font-bold">
+                Crea una sala y espera
+              </h3>
+              <div className="flex flex-col items-center">
+                <img
+                  className="h-16 mb-4"
+                  src="room_wait.svg"
+                  alt="Crear y esperar!"
+                />
+                <button 
+                onClick={()=>{}}
+                className="bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                  Crear Sala
+                </button>
               </div>
             </div>
           )}
