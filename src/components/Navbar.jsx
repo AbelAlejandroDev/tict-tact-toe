@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export const Navbar = ({ handleMultiplayer, handleParty }) => {
+export const Navbar = ({ handleMultiplayer, handleParty,handleSinglePlayer }) => {
   const [showMultiplayerOptions, setShowMultiplayerOptions] = useState(false);
   const ref = useRef(null);
 
@@ -49,7 +49,10 @@ export const Navbar = ({ handleMultiplayer, handleParty }) => {
             </button>
           </div>
         )}
-        <button className="flex bg-blue-700 items-center hover:bg-blue-500 text-white font-bold py-2 px-4 rounded">
+        <button
+          onClick={handleSinglePlayer}
+          className="flex bg-blue-700 items-center hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
+        >
           <img src="game_controller.svg" className="w-8  h-8 mr-2" alt="" />
           Un Jugador
         </button>
