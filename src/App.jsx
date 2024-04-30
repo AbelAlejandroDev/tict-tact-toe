@@ -30,13 +30,16 @@ export default function Game() {
   //     </li>
   //   );
   // });
-
   const handleMultiplayer = async () => {
     socket.emit("crear-partida", socket.id);
     setModal(!modal);
   };
   const handleParty = () => {
     setDialog(!dialog);
+  };
+
+  const handleSinglePlayer = () => {
+    socket.emit("un-jugador", xIsNext);
   };
 
   useEffect(() => {
@@ -62,6 +65,7 @@ export default function Game() {
         <Navbar
           handleMultiplayer={handleMultiplayer}
           handleParty={handleParty}
+          handleSinglePlayer={handleSinglePlayer}
         />
         <div className="grid grid-cols-12 gap-4">
           <div
