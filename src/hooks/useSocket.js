@@ -29,9 +29,10 @@ export const useSocket = (serverPath) => {
   }, [socket]);
 
   useEffect(() => {
-    socket.on("jugador-unido", ({ players }) => {
+    socket.on("jugador-unido", ({ players,token }) => {
       players[0] === socket.id ? setIsX(true) : setIsX(false);
       setGameMode("multiplayer");
+      sessionStorage.setItem("token",token)
     });
   }, [socket, isX]);
   useEffect(() => {
@@ -42,7 +43,7 @@ export const useSocket = (serverPath) => {
   }, [socket]);
 
   useEffect(() => {
-    socket.on("jugador-unido", ({ codeRoom }) => {
+    socket.on("jugador-unido", ({ codeRoom,token }) => {
       sessionStorage.setItem("token", token);
       setToken(codeRoom);
     });
@@ -63,6 +64,12 @@ export const useSocket = (serverPath) => {
       sessionStorage.removeItem("token");
     });
   });
+
+  useEffect(()=>{
+    socket.on('un-jugador',()=>{
+      setGameMode("single-player")
+    })
+  })
 
   return {
     socket,
