@@ -12,10 +12,11 @@ export default function Game() {
     useGame();
 
   const [connected, setConnected] = useState(false);
-  const { socket, gameMode, token } = useContext(SocketContext);
+  const { socket, token, online } = useContext(SocketContext);
   const [dialog, setDialog] = useState(false);
   const [modal, setModal] = useState(false);
 
+  const id = socket.id;
   // TODO: implementar IA 1jugador
   // const moves = history.map((squares, move) => {
   //   let description;
@@ -31,7 +32,6 @@ export default function Game() {
   //   );
   // });
   const handleMultiplayer = async () => {
-    socket.emit("crear-partida", socket.id);
     setModal(!modal);
   };
   const handleParty = () => {
@@ -40,6 +40,10 @@ export default function Game() {
 
   const handleSinglePlayer = () => {
     socket.emit("un-jugador", xIsNext);
+  };
+
+  const handleSearchParty = () => {
+    socket.emit("encontrar-partida", { id });
   };
 
   useEffect(() => {
@@ -63,9 +67,11 @@ export default function Game() {
       <Modal modal={dialog} closeModal={() => setDialog(false)} join={true} />
       <div className={`${modal || dialog ? "blur-sm" : ""}`}>
         <Navbar
+          handleSearchParty={handleSearchParty}
           handleMultiplayer={handleMultiplayer}
           handleParty={handleParty}
           handleSinglePlayer={handleSinglePlayer}
+          statusServer={online}
         />
         <div className="grid grid-cols-12 gap-4">
           <div
