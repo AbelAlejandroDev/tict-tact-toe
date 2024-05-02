@@ -6,15 +6,17 @@ import { SocketContext } from "../context/SocketContext";
 import NotificationBubble from "./NotificationBubble";
 
 export const Board = ({ xIsNext, squares, onPlay, jumpTo, newGame }) => {
-  const { socket, token } = useContext(SocketContext);
+  const { socket, token, gameMode } = useContext(SocketContext);
   const winner = useCalculateWinner(squares);
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [answer, setAnswer] = useState(null);
 
-  socket.on("jugador-unido", ({ players }) => {
+  socket.on("jugador-unido", ({ players,token }) => {
     // Si hay dos jugadores, establecer al primer jugador como el jugador actual
+    sessionStorage.setItem("token",token)
     setCurrentPlayer(players[0]);
   });
+  console.log(socket.id)
 
   useEffect(() => {
     socket.on("jugada", ({ squares, currentPlayer }) => {
@@ -45,8 +47,12 @@ export const Board = ({ xIsNext, squares, onPlay, jumpTo, newGame }) => {
   });
 
   function handleClick(i) {
+    // Si no existe un juego retornamos
+    if(gameMode === "") return
+    
+    // Multiplayer handleClik 
     if (currentPlayer !== socket.id || winner || squares[i]) {
-      return;
+      return 
     }
     const nextSquares = squares.slice();
     if (xIsNext) {
@@ -55,14 +61,14 @@ export const Board = ({ xIsNext, squares, onPlay, jumpTo, newGame }) => {
       nextSquares[i] = "O";
     }
     socket.emit("jugada", {
-      code: token ?? sessionStorage.getItem(token),
+      code:  token ?? sessionStorage.getItem("token"),
       squares: nextSquares,
       currentPlayer,
     });
+    console.log("jugada")
   }
 
   let found = squares.every((element) => element !== null);
-  console.log(winner);
   return (
     <>
       {answer === true && (

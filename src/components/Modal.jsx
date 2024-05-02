@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { SocketContext } from "../context/SocketContext";
 import NotificationBubble from "./NotificationBubble";
 
