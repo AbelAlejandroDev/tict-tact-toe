@@ -4,9 +4,11 @@ export const Navbar = ({
   handleMultiplayer,
   handleParty,
   handleSinglePlayer,
+  handleSearchParty,
   statusServer,
+
 }) => {
-  const [showMultiplayerOptions, setShowMultiplayerOptions] = useState(false);
+  const [showMultiplayerOptions, setShowMultiplayerOptions,] = useState(false);
   const ref = useRef(null);
 
   useEffect(() => {
@@ -51,6 +53,12 @@ export const Navbar = ({
               onClick={handleParty}
             >
               Unirse a una sala
+            </button>
+            <button
+              className="block h-10 text-md w-full text-left py-2 px-4 text-sm text-gray-800 hover:bg-gray-200"
+              onClick={handleSearchParty}
+            >
+              Buscar partida
             </button>
           </div>
         )}
