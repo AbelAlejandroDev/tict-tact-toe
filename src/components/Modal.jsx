@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../context/SocketContext";
 import NotificationBubble from "./NotificationBubble";
 
@@ -6,6 +6,7 @@ export const Modal = ({ modal, closeModal, create, join }) => {
   const { socket, token } = useContext(SocketContext);
   const [copied, setCopied] = useState(false);
   const [codeRoom, setCodigo] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const id = socket.id;
 
   const onSubmit = (e) => {
@@ -19,10 +20,16 @@ export const Modal = ({ modal, closeModal, create, join }) => {
         }, 2000);
       }
     });
+    setIsLoading(false);
     setCodigo("");
   };
   const onChange = ({ target }) => {
     setCodigo(target.value);
+  };
+
+  const generateToken = () => {
+    setIsLoading(true);
+    socket.emit("generar-token");
   };
 
   const copyPartyCode = () => {
@@ -33,10 +40,17 @@ export const Modal = ({ modal, closeModal, create, join }) => {
         setTimeout(() => {
           setCopied(false);
         }, 2000);
+        // emitimos una partida creada
+        socket.emit("crear-partida", { id, gameType: "with-code",token });
       })
+
       .catch((err) => {
         console.log(err);
       });
+  };
+
+  const onCreateRoom = () => {
+    socket.emit("crear-partida", { id, gameType: "free-room"});
   };
 
   return (
@@ -80,7 +94,7 @@ export const Modal = ({ modal, closeModal, create, join }) => {
                 </span>
               </h3>
               <div
-                onClick={copyPartyCode}
+                onClick={token ? copyPartyCode : () => {}}
                 className="cursor-pointer flex items-center"
               >
                 {copied ? (
@@ -101,9 +115,24 @@ export const Modal = ({ modal, closeModal, create, join }) => {
                     />
                     <div className="overflow-x-auto max-h-40">
                       <p>
-                        {token
-                          ? token
-                          : "El servidor esta en mantenimiento lo sentimos"}
+                        {token ? (
+                          token
+                        ) : (
+                          <button
+                            onClick={generateToken}
+                            className="px-4 py-2 bg-blue-700 hover:bg-blue-500 text-white font-bold rounded flex justify-center items-center"
+                          >
+                            Generar Token
+                            {isLoading ? (
+                              <svg
+                                className="animate-spin  h-4 w-4 ml-4 bg-white"
+                                viewBox="0 0 24 24"
+                              ></svg>
+                            ) : (
+                              <></>
+                            )}
+                          </button>
+                        )}
                       </p>
                     </div>
                   </>
@@ -119,9 +148,10 @@ export const Modal = ({ modal, closeModal, create, join }) => {
                   src="room_wait.svg"
                   alt="Crear y esperar!"
                 />
-                <button 
-                onClick={()=>{}}
-                className="bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                <button
+                  onClick={onCreateRoom}
+                  className="bg-blue-700 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded"
+                >
                   Crear Sala
                 </button>
               </div>
